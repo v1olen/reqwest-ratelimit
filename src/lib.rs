@@ -31,7 +31,8 @@ use reqwest::{Request, Response};
 use reqwest_middleware::{Next, Result};
 
 /// Request rate limiter.
-#[async_trait]
+#[cfg_attr(feature = "wasm", async_trait(?Send))]
+#[cfg_attr(not(feature = "wasm"), async_trait)]
 pub trait RateLimiter: Send + Sync + 'static {
     /// Acquires a permit to issue the next request.
     async fn acquire_permit(&self);
@@ -47,7 +48,8 @@ pub struct Middleware<R> {
     rate_limiter: R,
 }
 
-#[async_trait]
+#[cfg_attr(feature = "wasm", async_trait(?Send))]
+#[cfg_attr(not(feature = "wasm"), async_trait)]
 impl<R: RateLimiter> reqwest_middleware::Middleware for Middleware<R> {
     async fn handle(
         &self,
